@@ -1,0 +1,97 @@
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+#include <random>
+#include <fstream>
+#include <string.h>
+
+int main() {
+    //generate random alphabet
+    std::ofstream file {};
+    file.open("roter.txt");
+    if (!file.is_open()) std::cout << "File can not open" << std::endl;
+
+    std::vector<char> alphabetOriginal {};
+    std::vector<char> alphabetRandom {};
+    alphabetOriginal.emplace_back('A');
+    alphabetRandom.emplace_back('A');
+    for (int i {1}; i < 26; i++) {
+        alphabetOriginal.emplace_back('A' + i);
+        alphabetRandom.emplace_back('A' + i);
+    }
+
+    // initial 3 roters and 1 reflector
+    std::vector<std::pair<char,char>> roter1{};
+    std::vector<std::pair<char,char>> roter2{};
+    std::vector<std::pair<char,char>> roter3{};
+    std::vector<std::pair<char,char>> reflector{};
+
+    //generate roter1
+    std::random_device rd;
+    std::mt19937 gen{rd()};
+    std::shuffle(alphabetRandom.begin(), alphabetRandom.end(), gen);
+    for (unsigned int k {0}; k < alphabetOriginal.size(); k++) {
+        roter1.emplace_back(std::make_pair(alphabetOriginal.at(k),alphabetRandom.at(k)));
+    }
+    std::cout << "roter1 --->>>    ";
+    for (const auto &pa:roter1) {
+        std::cout << pa.first << ':' << pa.second << ' ';
+        file << "{'" << pa.first << "','" << pa.second << "'},";
+    }
+    file << std::endl;
+    std::cout << std::endl;
+
+    //generate roter2
+    std::shuffle(alphabetRandom.begin(), alphabetRandom.end(), gen);
+    for (unsigned int k {0}; k < alphabetOriginal.size(); k++) {
+        roter2.emplace_back(std::make_pair(alphabetOriginal.at(k),alphabetRandom.at(k)));
+    }
+    std::cout << "roter2 --->>>    ";
+    for (const auto &pa:roter2) {
+        std::cout << pa.first << ':' << pa.second << ' ';
+        file << "{'" << pa.first << "','" << pa.second << "'},";
+    }
+    file << std::endl;
+    std::cout << std::endl;
+
+    //generate roter3
+    std::shuffle(alphabetRandom.begin(), alphabetRandom.end(), gen);
+    for (unsigned int k {0}; k < alphabetOriginal.size(); k++) {
+        roter3.emplace_back(std::make_pair(alphabetOriginal.at(k),alphabetRandom.at(k)));
+    }
+    std::cout << "roter3 --->>>    ";
+    for (const auto &pa:roter3) {
+        std::cout << pa.first << ':' << pa.second << ' ';
+        file << "{'" << pa.first << "','" << pa.second << "'},";
+    }
+    file << std::endl;
+    std::cout << std::endl;
+
+    //generate reflector
+    std::shuffle(alphabetRandom.begin(), alphabetRandom.end(), gen);
+    for (unsigned int k {0}; k < alphabetOriginal.size(); k++) {
+        reflector.emplace_back(std::make_pair(alphabetOriginal.at(k),alphabetRandom.at(k)));
+    }
+    std::cout << "reflector --->>>    ";
+    for (const auto &pa:reflector) {
+        std::cout << pa.first << ':' << pa.second << ' ';
+        file << "{'" << pa.first << "','" << pa.second << "'},";
+    }
+    std::cout << std::endl;
+
+    // find the map position to the next lay
+    char lay3 {'A'};
+    std::vector<std::pair<char,char>>::iterator element = 
+        find_if(reflector.begin(),reflector.end(),
+            [lay3](std::pair<char,char> x) {return lay3 == x.first;});
+    if (element != reflector.end()) 
+        std::cout << std::distance(reflector.begin(), element) << std::endl;
+    std::vector<char>::iterator pos = find(alphabetOriginal.begin(), alphabetOriginal.end(), (*element).second);
+    if (pos != alphabetOriginal.end()) 
+        std::cout << std::distance(alphabetOriginal.begin(), pos) << std::endl;
+
+    std::cout << std::endl;
+    file.close();
+    return 0;
+}
